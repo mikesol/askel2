@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Askel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #f2f0eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow: hidden;
+            font-family: 'Geist Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+        }
+
+        @supports (color: oklch(0 0 0)) {
+            body { background: oklch(0.95 0.0187 80.72); }
+        }
+
+        .staircase { width: 85vmin; max-width: 600px; }
+        .staircase svg { width: 100%; height: auto; display: block; }
+
+        .stair-body { fill: #4a4a4a; }
+        .stair-letter {
+            fill: #cdba74;
+            font-family: 'Geist Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 56px;
+            font-weight: 800;
+        }
+
+        .nav-btn { cursor: pointer; }
+        .nav-btn rect {
+            fill: transparent;
+            stroke: rgba(242, 240, 235, 0.15);
+            stroke-width: 1;
+            transition: fill 0.15s;
+        }
+        .nav-btn:hover rect { fill: #f2f0eb; }
+        .nav-btn text {
+            fill: #d4d4d3;
+            font-family: 'Geist Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            transition: fill 0.15s;
+        }
+        .nav-btn:hover text { fill: #4a4a4a; }
+
+        .fade-group { transition: opacity 0.3s ease; }
+
+        .section-title {
+            fill: #b58d69;
+            font-family: 'Geist Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 32px;
+            font-weight: 800;
+            transition: opacity 0.3s ease;
+        }
+
+        @supports (color: oklch(0 0 0)) {
+            .stair-body { fill: oklch(0.29 0 0); }
+            .stair-letter { fill: oklch(0.75 0.1081 64.85); }
+            .nav-btn rect { stroke: oklch(0.95 0.0187 80.72 / 0.15); }
+            .nav-btn:hover rect { fill: oklch(0.95 0.0187 80.72); }
+            .nav-btn text { fill: oklch(0.83 0.0018 325.59); }
+            .nav-btn:hover text { fill: oklch(0.29 0 0); }
+            .section-title { fill: oklch(0.6 0.1499 37.55); }
+        }
+
+        /* Modal */
+        #modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(74, 74, 74, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #modal-overlay.visible { opacity: 1; }
+
+        #modal-inner {
+            background: #f2f0eb;
+            width: 90vw;
+            max-width: 640px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 36px 32px;
+            color: #4a4a4a;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        @supports (color: oklch(0 0 0)) {
+            #modal-overlay { background: oklch(0.29 0 0 / 0.5); }
+            #modal-inner { background: oklch(0.95 0.0187 80.72); color: oklch(0.29 0 0); }
+        }
+
+        #modal-inner h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #b58d69;
+            margin-bottom: 2px;
+        }
+        @supports (color: oklch(0 0 0)) {
+            #modal-inner h1 { color: oklch(0.6 0.1499 37.55); }
+        }
+
+        #modal-inner .subtitle {
+            font-size: 13px;
+            color: #808080;
+            margin-bottom: 24px;
+        }
+
+        #modal-inner h2 {
+            font-size: 15px;
+            font-weight: 700;
+            margin: 20px 0 8px;
+        }
+
+        #modal-inner p { margin: 10px 0; }
+        #modal-inner strong { font-weight: 700; }
+
+        #modal-inner table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+        #modal-inner th, #modal-inner td {
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid #d4d4d3;
+        }
+        #modal-inner th { font-weight: 700; }
+
+        #modal-inner ol, #modal-inner ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        #modal-inner li { margin: 4px 0; }
+
+        /* Funnel bars */
+        .funnel { margin: 16px 0; }
+        .funnel-bar {
+            background: #4a4a4a;
+            color: #cdba74;
+            padding: 10px 14px;
+            margin: 3px 0;
+            font-size: 13px;
+            font-weight: 600;
+            transition: width 0.8s ease;
+        }
+        @supports (color: oklch(0 0 0)) {
+            .funnel-bar { background: oklch(0.29 0 0); color: oklch(0.75 0.1081 64.85); }
+        }
+
+        /* View toggle */
+        .view-tabs { margin: 16px 0 12px; display: flex; gap: 4px; flex-wrap: wrap; }
+        .view-btn {
+            background: transparent;
+            border: 1px solid #4a4a4a;
+            color: #4a4a4a;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .view-btn.active { background: #4a4a4a; color: #f2f0eb; }
+
+        /* 18 Words grid */
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+            margin: 12px 0;
+            font-size: 11px;
+            text-align: center;
+        }
+        .word-cell { padding: 10px 4px; font-weight: 600; }
+        .word-cell.us { background: #cdba74; color: #4a4a4a; }
+        .word-cell.them { background: #d4d4d3; color: #4a4a4a; }
+        .word-cell.tied { background: #4a4a4a; color: #f2f0eb; }
+        .word-cat {
+            grid-column: 1 / -1;
+            padding: 8px 4px 4px;
+            font-weight: 700;
+            font-size: 12px;
+            text-align: left;
+            color: #808080;
+        }
+        .grid-legend {
+            display: flex;
+            gap: 12px;
+            margin: 8px 0 16px;
+            font-size: 11px;
+        }
+        .grid-legend span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .legend-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+        }
+        .legend-dot.us { background: #cdba74; }
+        .legend-dot.them { background: #d4d4d3; }
+        .legend-dot.tied { background: #4a4a4a; }
+
+        /* Timeline */
+        .timeline { margin: 12px 0; }
+        .tl-row {
+            display: flex;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #d4d4d3;
+            font-size: 13px;
+        }
+        .tl-date { width: 90px; flex-shrink: 0; font-weight: 700; color: #b58d69; }
+        .tl-desc { flex: 1; }
+
+        /* Surprise items */
+        .surprise {
+            padding: 10px 0;
+            border-bottom: 1px solid #d4d4d3;
+        }
+        .surprise:last-child { border-bottom: none; }
+        .surprise strong { color: #b58d69; }
+    </style>
+</head>
+<body>
+    <div class="staircase">
+        <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+            <polygon class="stair-body"
+                points="400,0 500,0 500,500 0,500 0,400 100,400 100,300 200,300 200,200 300,200 300,100 400,100" />
+
+            <text class="stair-letter" x="50" y="450" text-anchor="middle" dominant-baseline="central">A</text>
+            <text class="stair-letter" x="150" y="350" text-anchor="middle" dominant-baseline="central">S</text>
+            <text class="stair-letter" x="250" y="250" text-anchor="middle" dominant-baseline="central">K</text>
+            <text class="stair-letter" x="350" y="150" text-anchor="middle" dominant-baseline="central">E</text>
+            <text class="stair-letter" x="450" y="50" text-anchor="middle" dominant-baseline="central">L</text>
+
+            <g id="home-nav" class="fade-group">
+                <a class="nav-btn" data-section="case-study"><rect x="400" y="100" width="100" height="100" /><text x="450" y="150" text-anchor="middle" dominant-baseline="central">Case Study</text></a>
+                <a class="nav-btn" data-section="investors"><rect x="300" y="200" width="100" height="100" /><text x="350" y="250" text-anchor="middle" dominant-baseline="central">Investors</text></a>
+                <a class="nav-btn" data-section="sellers"><rect x="400" y="200" width="100" height="100" /><text x="450" y="250" text-anchor="middle" dominant-baseline="central">Sellers</text></a>
+                <a class="nav-btn" data-section="operators"><rect x="200" y="300" width="100" height="100" /><text x="250" y="350" text-anchor="middle" dominant-baseline="central">Operators</text></a>
+                <a class="nav-btn" data-section="thesis"><rect x="300" y="300" width="100" height="100" /><text x="350" y="350" text-anchor="middle" dominant-baseline="central">Thesis</text></a>
+                <a class="nav-btn" data-section="team"><rect x="400" y="300" width="100" height="100" /><text x="450" y="350" text-anchor="middle" dominant-baseline="central">Team</text></a>
+                <a class="nav-btn" data-section="contact"><rect x="100" y="400" width="100" height="100" /><text x="150" y="450" text-anchor="middle" dominant-baseline="central">Contact</text></a>
+                <a class="nav-btn" data-section="legal"><rect x="200" y="400" width="100" height="100" /><text x="250" y="450" text-anchor="middle" dominant-baseline="central">Legal</text></a>
+                <a class="nav-btn" data-section="news"><rect x="300" y="400" width="100" height="100" /><text x="350" y="450" text-anchor="middle" dominant-baseline="central">News</text></a>
+                <a class="nav-btn" data-section="social"><rect x="400" y="400" width="100" height="100" /><text x="450" y="450" text-anchor="middle" dominant-baseline="central">Social</text></a>
+            </g>
+
+            <g id="section-content" class="fade-group" style="opacity: 0; pointer-events: none;">
+                <g class="nav-btn sq"><rect x="400" y="100" width="100" height="100" /><text class="sw" x="450" y="150" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="300" y="200" width="100" height="100" /><text class="sw" x="350" y="250" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="400" y="200" width="100" height="100" /><text class="sw" x="450" y="250" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="200" y="300" width="100" height="100" /><text class="sw" x="250" y="350" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="300" y="300" width="100" height="100" /><text class="sw" x="350" y="350" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="400" y="300" width="100" height="100" /><text class="sw" x="450" y="350" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="100" y="400" width="100" height="100" /><text class="sw" x="150" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="200" y="400" width="100" height="100" /><text class="sw" x="250" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="300" y="400" width="100" height="100" /><text class="sw" x="350" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="400" y="400" width="100" height="100" /><text class="sw" x="450" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
+            </g>
+
+            <text id="section-title" class="section-title" x="25" y="120" style="opacity: 0;"></text>
+        </svg>
+    </div>
+
+    <div id="modal-overlay">
+        <div id="modal-inner">
+            <h1 id="modal-title"></h1>
+            <div class="subtitle" id="modal-subtitle"></div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // ── Data ──────────────────────────────────────────────
+        const sections = {
+            'case-study':  ['Funnel', 'The Call', 'The Visit', '3 Companies', 'The Audit', 'Numbers', 'Competition', '18 Words', 'The Close', 'Surprises'],
+            'investors':   ['Alpha', 'Yield', 'Capital', 'Returns', 'Growth', 'Equity', 'Allocate', 'Venture', 'Seed', 'Exit'],
+            'sellers':     ['Pipeline', 'Valuation', 'Diligence', 'Listing', 'Offer', 'Close', 'Escrow', 'Transfer', 'Asset', 'Deal'],
+            'operators':   ['Metrics', 'Scale', 'Optimize', 'Deploy', 'Manage', 'Process', 'Automate', 'Execute', 'Deliver', 'Track'],
+            'thesis':      ['Focus', 'Impact', 'Trend', 'Market', 'Sector', 'Edge', 'Vision', 'Strategy', 'Cycle', 'Signal'],
+            'team':        ['Founders', 'Board', 'Advisory', 'Partners', 'Analysts', 'Alumni', 'Culture', 'Values', 'Hiring', 'Network'],
+            'contact':     ['Helsinki', 'London', 'Email', 'Phone', 'Visit', 'Hours', 'Map', 'Careers', 'Office', 'Chat'],
+            'legal':       ['Privacy', 'Terms', 'Cookie', 'GDPR', 'Notice', 'Policy', 'Rights', 'Data', 'Consent', 'Audit'],
+            'news':        ['Latest', 'Press', 'Release', 'Update', 'Blog', 'Feature', 'Award', 'Launch', 'Report', 'Event'],
+            'social':      ['Twitter', 'LinkedIn', 'Medium', 'GitHub', 'Discord', 'Threads', 'YouTube', 'Podcast', 'RSS', 'Bluesky']
+        };
+
+        const sectionTitles = {
+            'case-study': 'Case Study', 'investors': 'Investors', 'sellers': 'Sellers',
+            'operators': 'Operators', 'thesis': 'Thesis', 'team': 'Team',
+            'contact': 'Contact', 'legal': 'Legal', 'news': 'News', 'social': 'Social'
+        };
+
+        const caseStudySlugs = [
+            'the-funnel', 'the-call', 'the-visit', 'three-companies', 'the-audit',
+            'the-numbers', 'competition', '18-words', 'the-close', 'surprises'
+        ];
+
+        const modals = {
+            'the-funnel': {
+                title: 'The Funnel',
+                subtitle: '94 prospects. 1 deal.',
+                html: `
+                    <p>We started with a system, not a target. In September 2025, we sent our acquisition criteria to 100 business brokers across Finland.</p>
+                    <h2>Stage 1: The Gate</h2>
+                    <ul>
+                        <li>Company minimum 5 years old</li>
+                        <li>Profit minimum &euro;100,000/year</li>
+                        <li>Minimum 3 employees</li>
+                    </ul>
+                    <h2>Stage 2: The Filter</h2>
+                    <ul>
+                        <li>Enterprise value ~&euro;500,000</li>
+                        <li>Margins above 20%</li>
+                        <li>Service industry, owner-operated</li>
+                        <li>&ldquo;The scruffier, the better&rdquo;</li>
+                    </ul>
+                    <h2>Stage 3: The Kill Questions</h2>
+                    <p>Every prospect that passed Stage 2 faced four questions. If any answer was no, the deal was dead.</p>
+                    <ol>
+                        <li>How could we exit in 3&ndash;5 years?</li>
+                        <li>Capital gain minimum &euro;100k per owner?</li>
+                        <li>Can we implement tech that makes operations faster?</li>
+                        <li>Can we run this with max 5 hours weekly?</li>
+                    </ol>
+                    <div class="funnel">
+                        <div class="funnel-bar" style="width:100%">94 &mdash; Prospects identified</div>
+                        <div class="funnel-bar" style="width:45%">~40 &mdash; Passed the gate</div>
+                        <div class="funnel-bar" style="width:12%">~8 &mdash; Matched the filter</div>
+                        <div class="funnel-bar" style="width:3%">1 &mdash; Survived the kill questions</div>
+                    </div>`
+            },
+            'the-call': {
+                title: 'The Call',
+                subtitle: 'September 18, 2025.',
+                html: `
+                    <p>The deal wasn&rsquo;t even listed yet.</p>
+                    <p>One broker called back &mdash; not with a listing from a database, but with a business he knew was about to come to market. Melers Oy, a dry cleaning and laundry operation in Turku. Forty years old. Service-based. Owner-operated. Profitable, if you knew where to look.</p>
+                    <p>It matched every criterion. Five years old? Try forty. Service industry? Textbook. Owner-operated? Mika ran everything &mdash; maintenance, customer calls, deliveries &mdash; himself.</p>
+                    <p>We asked our kill questions on the spot. Every answer was yes.</p>
+                    <p><strong>Eighteen days later, we sent the letter of intent.</strong></p>
+                    <p>Speed mattered. The deal hadn&rsquo;t been shopped around yet. No competitive process. No auction dynamics. Just a broker who knew what we wanted and a business that fit.</p>
+                    <p>The system worked exactly as designed: criteria sent wide, one call came back, and we moved fast enough that the opportunity was ours to lose.</p>`
+            },
+            'the-visit': {
+                title: 'The Visit',
+                subtitle: 'Turku, Finland.',
+                html: `
+                    <p>We drove to Turku to see it with our own eyes.</p>
+                    <p>Two locations: the <strong>K&auml;rs&auml;m&auml;ki production facility</strong> &mdash; industrial washing machines, dryers, pressing equipment filling every square meter &mdash; and the <strong>Keskusta storefront</strong> on Kaskenkatu for walk-in customers.</p>
+                    <p>The facility was at maximum capacity. No room for additional machines. The hall was full. Mika had maintained every piece of equipment himself for decades. An oil-based heating system. Machines at the older end of serviceable life, but running.</p>
+                    <p>What struck us wasn&rsquo;t the machines. It was the operation.</p>
+                    <p>Forty years of profitable work. <strong>Zero spreadsheets. Zero CRM. Zero formal systems.</strong> Customer relationships maintained by memory and habit. Pricing decided by feel. A business running entirely on one person&rsquo;s institutional knowledge.</p>
+                    <p>This was either a disaster or an opportunity. We saw opportunity. Every missing system was a lever we could pull. Every manual process was efficiency waiting to be unlocked.</p>
+                    <p>The 49 B2B customers and the walk-in traffic kept the machines running at full capacity. The question wasn&rsquo;t whether the business worked. It was whether it could work without Mika.</p>`
+            },
+            'three-companies': {
+                title: 'Three Companies',
+                subtitle: 'Hidden in one P&L.',
+                html: `
+                    <p>What looked like one business was actually three.</p>
+                    <h2>1. The Laundry (Core)</h2>
+                    <p>B2B industrial laundry and dry cleaning. Hotels, restaurants, elderly care homes, corporate clients. 66% of revenue. The engine. Anchor contract: <strong>Varha</strong> (Turku city elderly care), a 3-year agreement with a 0% VAT advantage for 70+ years service.</p>
+                    <h2>2. Cleaning Supplies (Hidden Asset)</h2>
+                    <p>Minna&rsquo;s passion project &mdash; a cleaning detergent product line she&rsquo;d built herself. The brand she cared about most. Never separated in the financials. Revenue and costs tangled into the same bank account as everything else.</p>
+                    <p>This mattered more than we initially understood. It turned out to be <strong>the decisive factor</strong> in winning the deal.</p>
+                    <h2>3. The Toy Marketplace (Excluded)</h2>
+                    <p>An unrelated online marketplace mixed into the same entity. Its revenue and expenses muddied every line of the P&amp;L.</p>
+                    <p><strong>We bought the first two.</strong> The toy marketplace stayed with the sellers.</p>
+                    <p>Untangling three businesses from one bank account, one P&amp;L, and one tax filing taught us that in owner-operated businesses, the official story is never the complete story.</p>`
+            },
+            'the-audit': {
+                title: 'The Audit',
+                subtitle: '123 rows. Line by line.',
+                html: `
+                    <p>There were no spreadsheets. No accounting system. No categorized expenses. Just a bank account.</p>
+                    <p>So we pulled the bank statements and went through every transaction. <strong>123 rows.</strong></p>
+                    <h2>What we found: ~&euro;40,000/year in cleanable expenses</h2>
+                    <table>
+                        <thead><tr><th>Category</th><th>Before</th><th>After</th></tr></thead>
+                        <tbody>
+                            <tr><td>Car expenses (Veho)</td><td>&euro;35,000</td><td>&euro;2,600</td></tr>
+                            <tr><td>Life insurance (Aktia)</td><td>~&euro;20,000</td><td>&euro;0</td></tr>
+                            <tr><td>Kirkland expenses</td><td>&euro;13,300</td><td>&euro;1,200</td></tr>
+                            <tr><td>Voluntary pension</td><td>&euro;40,000</td><td>&euro;0</td></tr>
+                        </tbody>
+                    </table>
+                    <p>Personal car leases. Life insurance premiums. Hobby expenses. All flowing through the business account as if they were operating costs.</p>
+                    <p>When you clean the numbers, a company that filed a <strong>&euro;309 loss</strong> suddenly shows <strong>&euro;155,000 in EBIT</strong>.</p>
+                    <p>The value was always there. It was buried in the bank statements, invisible to anyone who wouldn&rsquo;t sit down and read 123 rows.</p>`
+            },
+            'the-numbers': {
+                title: 'The Numbers',
+                subtitle: 'Same company. Three views.',
+                html: `
+                    <p>The same company looks completely different depending on who&rsquo;s looking.</p>
+                    <div class="view-tabs">
+                        <button class="view-btn active" data-view="public">Public Record</button>
+                        <button class="view-btn" data-view="seller">Seller&rsquo;s P&amp;L</button>
+                        <button class="view-btn" data-view="ours">Our Model</button>
+                    </div>
+                    <div class="view-panel" data-view="public">
+                        <table>
+                            <tr><td>Revenue</td><td><strong>&euro;495,364</strong></td></tr>
+                            <tr><td>Personnel costs</td><td>&euro;222,819</td></tr>
+                            <tr><td>Operating expenses</td><td>&euro;210,682</td></tr>
+                            <tr><td>Result</td><td><strong style="color:#b58d69">&minus;&euro;309</strong></td></tr>
+                        </table>
+                        <p>On paper: a mediocre or loss-making business. This is what any buyer sees first. Most walk away here.</p>
+                    </div>
+                    <div class="view-panel" data-view="seller" style="display:none">
+                        <p>The seller&rsquo;s accountant removed owner YEL salaries, replaced them with market-rate employee costs. Removed &euro;40,000 in voluntary pension contributions. Eliminated internal rents to the family holding company.</p>
+                        <table>
+                            <tr><td>Adjusted EBIT</td><td><strong>&euro;121,454</strong></td></tr>
+                            <tr><td>Adjusted EBITDA</td><td><strong>&gt;&euro;100,000</strong></td></tr>
+                        </table>
+                        <p>Same company. Dramatically different profitability story. A reasonably attractive small business.</p>
+                    </div>
+                    <div class="view-panel" data-view="ours" style="display:none">
+                        <p>We identified three hidden businesses in the P&amp;L. Recalculated owner contribution (Mika was 100% operational, not part-time). Normalized internal rents. Cleaned &euro;40k in personal expenses from the bank audit.</p>
+                        <table>
+                            <tr><td>Revenue</td><td><strong>~&euro;525,000</strong></td></tr>
+                            <tr><td>EBIT</td><td><strong>~&euro;155,000</strong></td></tr>
+                            <tr><td>EBIT Margin</td><td><strong>~30%</strong></td></tr>
+                            <tr><td>Projected IRR (7yr)</td><td><strong>39.1%</strong></td></tr>
+                            <tr><td>Equity Multiple</td><td><strong>5.03x</strong></td></tr>
+                        </table>
+                        <p>A sound business with serious operational leverage. The gap between public record and reality: <strong>&euro;309 loss vs. &euro;155,000 profit.</strong></p>
+                    </div>`
+            },
+            'competition': {
+                title: 'The Competition',
+                subtitle: 'Same offer. More experience. They lost.',
+                html: `
+                    <p>Midway through our process, another buyer appeared. They had everything we didn&rsquo;t: <strong>twenty years of industry experience</strong>, operational knowledge, established relationships in the sector.</p>
+                    <p>Their financial offer was identical to ours. Same price. Same structure.</p>
+                    <p><strong>They lost.</strong></p>
+                    <h2>What they did</h2>
+                    <ul>
+                        <li>Brought six people to negotiation calls</li>
+                        <li>Communicated through the broker</li>
+                        <li>Had gaps in response time</li>
+                        <li>Showed no interest in Minna&rsquo;s cleaning supply brand</li>
+                    </ul>
+                    <h2>What we did</h2>
+                    <ul>
+                        <li>Direct, one-on-one phone calls &mdash; three hours at a time</li>
+                        <li>Called Minna directly, not through intermediaries</li>
+                        <li>Asked about the cleaning supply brand, her vision for it</li>
+                        <li>Responded fast, every time</li>
+                    </ul>
+                    <p>The decisive moment: Nikolas spoke with Minna directly. She revealed what mattered most &mdash; the cleaning supply brand she&rsquo;d built herself. It was her legacy. The competitor never asked about it.</p>
+                    <p><strong>In late-career acquisitions, sellers don&rsquo;t optimize for price. They optimize for meaning.</strong></p>`
+            },
+            '18-words': {
+                title: 'The 18 Words',
+                subtitle: 'Why we won.',
+                html: `
+                    <p>We mapped every factor that influenced the seller&rsquo;s decision into an 18-word grid across four categories.</p>
+                    <div class="grid-legend">
+                        <span><i class="legend-dot us"></i> Askel</span>
+                        <span><i class="legend-dot them"></i> Competitor</span>
+                        <span><i class="legend-dot tied"></i> Tied</span>
+                    </div>
+                    <div class="word-grid">
+                        <div class="word-cat">Financial</div>
+                        <div class="word-cell tied">Price</div>
+                        <div class="word-cell tied">Financing</div>
+                        <div class="word-cell tied">Earnout</div>
+
+                        <div class="word-cat">Operational</div>
+                        <div class="word-cell them">Knowledge</div>
+                        <div class="word-cell us">Communication</div>
+                        <div class="word-cell us">Responsiveness</div>
+                        <div class="word-cell us">Trust</div>
+
+                        <div class="word-cat">Relational</div>
+                        <div class="word-cell us">Legacy</div>
+                        <div class="word-cell us">Continuity</div>
+                        <div class="word-cell us">Reputation</div>
+                        <div class="word-cell us">Employees</div>
+                        <div class="word-cell us">Vision</div>
+                        <div class="word-cell us">Control</div>
+
+                        <div class="word-cat">Timing</div>
+                        <div class="word-cell us">Speed</div>
+                        <div class="word-cell us">Timing</div>
+                        <div class="word-cell us">Simplicity</div>
+                    </div>
+                    <p>Financial terms were identical. Operational experience favored the competitor. But <strong>relational and timing factors &mdash; legacy, trust, speed, simplicity &mdash; all went to us.</strong></p>
+                    <p>The seller &ldquo;never thought in structures.&rdquo; She needed a deal she could understand, from people she trusted, who cared about what she&rsquo;d built.</p>
+                    <p>Price got us to the table. Everything else won the deal.</p>`
+            },
+            'the-close': {
+                title: 'The Close',
+                subtitle: 'September 18 to December 23. 96 days.',
+                html: `
+                    <div class="timeline">
+                        <div class="tl-row"><div class="tl-date">Sep 18</div><div class="tl-desc"><strong>The Call.</strong> Broker contacts us. Deal not yet listed.</div></div>
+                        <div class="tl-row"><div class="tl-date">Sep 25&ndash;30</div><div class="tl-desc"><strong>The Visit.</strong> Drove to Turku. Saw the facility, met Mika and Minna.</div></div>
+                        <div class="tl-row"><div class="tl-date">Oct 3</div><div class="tl-desc"><strong>Kill Questions.</strong> All four passed. Due diligence begins.</div></div>
+                        <div class="tl-row"><div class="tl-date">Oct 6</div><div class="tl-desc"><strong>LOI Sent.</strong> Letter of intent &mdash; 18 days from first call.</div></div>
+                        <div class="tl-row"><div class="tl-date">Oct 15&ndash;20</div><div class="tl-desc"><strong>Competition.</strong> Second buyer emerges. Same offer, 20 years experience.</div></div>
+                        <div class="tl-row"><div class="tl-date">Oct&ndash;Nov</div><div class="tl-desc"><strong>The Audit.</strong> 123 bank rows analyzed. &euro;40k in cleanable expenses found.</div></div>
+                        <div class="tl-row"><div class="tl-date">Nov</div><div class="tl-desc"><strong>Direct Calls.</strong> One-on-one with Minna, 3 hours each. Legacy revealed.</div></div>
+                        <div class="tl-row"><div class="tl-date">Dec 22&ndash;23</div><div class="tl-desc"><strong>Close.</strong> Asset deal. &euro;360,000. Keys handed over.</div></div>
+                    </div>
+                    <h2>Deal Structure</h2>
+                    <table>
+                        <tr><td>Type</td><td>Asset deal (not share &mdash; reduces legacy risk)</td></tr>
+                        <tr><td>Price</td><td>&euro;360,000</td></tr>
+                        <tr><td>Earnout</td><td>20% of EBITDA growth, 3 years</td></tr>
+                        <tr><td>Financing</td><td>Equity + bank loan (Finnvera guarantee)</td></tr>
+                        <tr><td>Seller retention</td><td>1-year contractual commitment</td></tr>
+                    </table>
+                    <p>Every week of delay was a week the competitor could catch up. We moved fast because the system was built to move fast.</p>`
+            },
+            'surprises': {
+                title: 'What Surprised Us',
+                subtitle: 'Things we didn&rsquo;t expect.',
+                html: `
+                    <div class="surprise"><strong>Pricing chaos.</strong> Customers don&rsquo;t know what they&rsquo;ll pay until the invoice arrives. Price per kilo ranges from &euro;1.70 to &euro;7.90 &mdash; a 4x variance with no logic behind it.</div>
+                    <div class="surprise"><strong>Zero systems.</strong> Forty years of profitable operations. Zero spreadsheets. Zero CRM. Zero formal processes. The entire business ran on one person&rsquo;s memory.</div>
+                    <div class="surprise"><strong>Zero complaints.</strong> Despite the pricing chaos, the industry norm is zero customer reclamations. Nobody complains about laundry pricing. Ever.</div>
+                    <div class="surprise"><strong>Knowledge walked out.</strong> Mika performed all equipment maintenance himself. Post-close, his motivation evaporated. The institutional knowledge we needed most was the hardest to transfer.</div>
+                    <div class="surprise"><strong>The earnout paradox.</strong> We structured an earnout &mdash; 20% of EBITDA growth &mdash; to align incentives. The sellers never understood it. They made decisions that hurt their own payout because the structure exceeded their mental model.</div>
+                    <div class="surprise"><strong>Capacity ceiling.</strong> The facility is at maximum capacity. No room for additional machines. Growth means efficiency, not expansion.</div>
+                    <div class="surprise"><strong>The real P&amp;L.</strong> The official filing showed a &euro;309 loss. We found &euro;155,000 in EBIT. The gap between public record and reality in owner-operated businesses is staggering.</div>
+                    <div class="surprise"><strong>Three businesses, one account.</strong> Laundry, cleaning supplies, and a toy marketplace &mdash; all in one P&amp;L. Untangling them was the only way to see what we were actually buying.</div>
+                    <p style="margin-top:20px;color:#808080"><strong>Deal structures can&rsquo;t account for human nature. The real work starts after close.</strong></p>`
+            }
+        };
+
+        // ── DOM ───────────────────────────────────────────────
+        const homeNav = document.getElementById('home-nav');
+        const sectionContent = document.getElementById('section-content');
+        const sectionTitle = document.getElementById('section-title');
+        const words = document.querySelectorAll('.sw');
+        const squares = document.querySelectorAll('.sq');
+        const overlay = document.getElementById('modal-overlay');
+        const modalTitle = document.getElementById('modal-title');
+        const modalSubtitle = document.getElementById('modal-subtitle');
+        const modalBody = document.getElementById('modal-body');
+
+        let curSection = null;
+        let curItem = null;
+
+        // ── Routing ───────────────────────────────────────────
+        function getRoute() {
+            const h = location.hash.slice(1);
+            if (!h) return {};
+            const [section, item] = h.split('/');
+            if (sections[section]) return item ? { section, item } : { section };
+            return {};
+        }
+
+        // ── View transitions ──────────────────────────────────
+        function showSectionView(id, animate) {
+            const data = sections[id];
+            if (!data) return;
+
+            if (animate) {
+                homeNav.style.opacity = '0';
+                homeNav.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    words.forEach((el, i) => { el.textContent = data[i]; });
+                    sectionTitle.textContent = sectionTitles[id];
+                    sectionContent.style.opacity = '1';
+                    sectionContent.style.pointerEvents = 'auto';
+                    sectionTitle.style.opacity = '1';
+                }, 300);
+            } else {
+                homeNav.style.opacity = '0';
+                homeNav.style.pointerEvents = 'none';
+                words.forEach((el, i) => { el.textContent = data[i]; });
+                sectionTitle.textContent = sectionTitles[id];
+                sectionContent.style.opacity = '1';
+                sectionContent.style.pointerEvents = 'auto';
+                sectionTitle.style.opacity = '1';
+            }
+        }
+
+        function showHome(animate) {
+            if (animate) {
+                sectionContent.style.opacity = '0';
+                sectionContent.style.pointerEvents = 'none';
+                sectionTitle.style.opacity = '0';
+                setTimeout(() => {
+                    homeNav.style.opacity = '1';
+                    homeNav.style.pointerEvents = 'auto';
+                }, 300);
+            } else {
+                sectionContent.style.opacity = '0';
+                sectionContent.style.pointerEvents = 'none';
+                sectionTitle.style.opacity = '0';
+                homeNav.style.opacity = '1';
+                homeNav.style.pointerEvents = 'auto';
+            }
+        }
+
+        function openModal(slug, animate) {
+            const data = modals[slug];
+            if (!data) return;
+            modalTitle.textContent = data.title;
+            modalSubtitle.textContent = data.subtitle;
+            modalBody.innerHTML = data.html;
+            overlay.style.display = 'flex';
+            if (animate) {
+                requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('visible')));
+            } else {
+                overlay.classList.add('visible');
+            }
+            // Setup interactive elements
+            setupInteractive(slug);
+        }
+
+        function closeModal(animate) {
+            if (animate) {
+                overlay.classList.remove('visible');
+                const handler = () => { overlay.style.display = 'none'; overlay.removeEventListener('transitionend', handler); };
+                overlay.addEventListener('transitionend', handler);
+            } else {
+                overlay.classList.remove('visible');
+                overlay.style.display = 'none';
+            }
+        }
+
+        function setupInteractive(slug) {
+            if (slug === 'the-numbers') {
+                const btns = modalBody.querySelectorAll('.view-btn');
+                const panels = modalBody.querySelectorAll('.view-panel');
+                btns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btns.forEach(b => b.classList.remove('active'));
+                        panels.forEach(p => p.style.display = 'none');
+                        btn.classList.add('active');
+                        modalBody.querySelector(`.view-panel[data-view="${btn.dataset.view}"]`).style.display = 'block';
+                    });
+                });
+            }
+        }
+
+        // ── State reconciliation ──────────────────────────────
+        function navigate(animate) {
+            const route = getRoute();
+            const newSection = route.section || null;
+            const newItem = route.item || null;
+
+            // Close modal if leaving it
+            if (curItem && !newItem) closeModal(animate);
+
+            // Section transitions
+            if (curSection && !newSection) {
+                showHome(animate && !curItem);
+            } else if (newSection && newSection !== curSection) {
+                showSectionView(newSection, animate && !curItem);
+            }
+
+            // Open modal if entering it
+            if (newItem && newItem !== curItem) {
+                if (!curSection && newSection) {
+                    // Direct link: section was just shown above, give it a tick
+                    setTimeout(() => openModal(newItem, animate), animate ? 10 : 0);
+                } else {
+                    openModal(newItem, animate);
+                }
+            }
+
+            curSection = newSection;
+            curItem = newItem;
+        }
+
+        // ── Event handlers ────────────────────────────────────
+        homeNav.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.section;
+                history.pushState(null, '', '#' + id);
+                navigate(true);
+            });
+        });
+
+        squares.forEach((sq, i) => {
+            sq.addEventListener('click', () => {
+                if (curSection === 'case-study') {
+                    const slug = caseStudySlugs[i];
+                    if (modals[slug]) {
+                        history.pushState(null, '', '#case-study/' + slug);
+                        navigate(true);
+                    }
+                }
+            });
+        });
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) history.back();
+        });
+
+        window.addEventListener('popstate', () => navigate(true));
+
+        // ── Initial load ──────────────────────────────────────
+        const init = getRoute();
+        if (init.section) {
+            history.replaceState(null, '', '#' + init.section + (init.item ? '/' + init.item : ''));
+            navigate(false);
+        } else {
+            history.replaceState(null, '', location.pathname);
+        }
+    </script>
+</body>
+</html>
