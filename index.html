@@ -50,6 +50,15 @@
         }
         .nav-btn:hover text { fill: #4a4a4a; }
 
+        .sq-num {
+            fill: rgba(242, 240, 235, 0.35);
+            font-family: 'Geist Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            transition: fill 0.15s;
+        }
+        .nav-btn:hover .sq-num { fill: rgba(74, 74, 74, 0.4); }
+
         .fade-group { transition: opacity 0.3s ease; }
 
         .section-title {
@@ -259,16 +268,16 @@
             </g>
 
             <g id="section-content" class="fade-group" style="opacity: 0; pointer-events: none;">
-                <g class="nav-btn sq"><rect x="400" y="100" width="100" height="100" /><text class="sw" x="450" y="150" text-anchor="middle" dominant-baseline="central"></text></g>
-                <g class="nav-btn sq"><rect x="300" y="200" width="100" height="100" /><text class="sw" x="350" y="250" text-anchor="middle" dominant-baseline="central"></text></g>
-                <g class="nav-btn sq"><rect x="400" y="200" width="100" height="100" /><text class="sw" x="450" y="250" text-anchor="middle" dominant-baseline="central"></text></g>
-                <g class="nav-btn sq"><rect x="200" y="300" width="100" height="100" /><text class="sw" x="250" y="350" text-anchor="middle" dominant-baseline="central"></text></g>
-                <g class="nav-btn sq"><rect x="300" y="300" width="100" height="100" /><text class="sw" x="350" y="350" text-anchor="middle" dominant-baseline="central"></text></g>
-                <g class="nav-btn sq"><rect x="400" y="300" width="100" height="100" /><text class="sw" x="450" y="350" text-anchor="middle" dominant-baseline="central"></text></g>
-                <g class="nav-btn sq"><rect x="100" y="400" width="100" height="100" /><text class="sw" x="150" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
-                <g class="nav-btn sq"><rect x="200" y="400" width="100" height="100" /><text class="sw" x="250" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
-                <g class="nav-btn sq"><rect x="300" y="400" width="100" height="100" /><text class="sw" x="350" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
-                <g class="nav-btn sq"><rect x="400" y="400" width="100" height="100" /><text class="sw" x="450" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="400" y="100" width="100" height="100" /><text class="sq-num sn" x="408" y="113"></text><text class="sw" x="450" y="150" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="300" y="200" width="100" height="100" /><text class="sq-num sn" x="308" y="213"></text><text class="sw" x="350" y="250" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="400" y="200" width="100" height="100" /><text class="sq-num sn" x="408" y="213"></text><text class="sw" x="450" y="250" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="200" y="300" width="100" height="100" /><text class="sq-num sn" x="208" y="313"></text><text class="sw" x="250" y="350" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="300" y="300" width="100" height="100" /><text class="sq-num sn" x="308" y="313"></text><text class="sw" x="350" y="350" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="400" y="300" width="100" height="100" /><text class="sq-num sn" x="408" y="313"></text><text class="sw" x="450" y="350" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="100" y="400" width="100" height="100" /><text class="sq-num sn" x="108" y="413"></text><text class="sw" x="150" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="200" y="400" width="100" height="100" /><text class="sq-num sn" x="208" y="413"></text><text class="sw" x="250" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="300" y="400" width="100" height="100" /><text class="sq-num sn" x="308" y="413"></text><text class="sw" x="350" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
+                <g class="nav-btn sq"><rect x="400" y="400" width="100" height="100" /><text class="sq-num sn" x="408" y="413"></text><text class="sw" x="450" y="450" text-anchor="middle" dominant-baseline="central"></text></g>
             </g>
 
             <text id="section-title" class="section-title" x="25" y="120" style="opacity: 0;"></text>
@@ -286,7 +295,7 @@
     <script>
         // ── Data ──────────────────────────────────────────────
         const sections = {
-            'case-study':  ['Funnel', 'The Call', 'The Visit', '3 Companies', 'The Audit', 'Numbers', 'Competition', '18 Words', 'The Close', 'Surprises'],
+            'case-study':  ['Funnel', 'The Call', 'The Visit', 'Companies', 'The Audit', 'Numbers', 'Competition', '18 Words', 'The Close', 'Surprises'],
             'investors':   ['Alpha', 'Yield', 'Capital', 'Returns', 'Growth', 'Equity', 'Allocate', 'Venture', 'Seed', 'Exit'],
             'sellers':     ['Pipeline', 'Valuation', 'Diligence', 'Listing', 'Offer', 'Close', 'Escrow', 'Transfer', 'Asset', 'Deal'],
             'operators':   ['Metrics', 'Scale', 'Optimize', 'Deploy', 'Manage', 'Process', 'Automate', 'Execute', 'Deliver', 'Track'],
@@ -302,6 +311,10 @@
             'case-study': 'Case Study', 'investors': 'Investors', 'sellers': 'Sellers',
             'operators': 'Operators', 'thesis': 'Thesis', 'team': 'Team',
             'contact': 'Contact', 'legal': 'Legal', 'news': 'News', 'social': 'Social'
+        };
+
+        const sectionNums = {
+            'case-study': ['1/', '2/', '3/', '4/', '5/', '6/', '7/', '8/', '9/', '10/']
         };
 
         const caseStudySlugs = [
@@ -368,7 +381,7 @@
                     <p>The 49 B2B customers and the walk-in traffic kept the machines running at full capacity. The question wasn&rsquo;t whether the business worked. It was whether it could work without Mika.</p>`
             },
             'three-companies': {
-                title: 'Three Companies',
+                title: 'Companies',
                 subtitle: 'Hidden in one P&L.',
                 html: `
                     <p>What looked like one business was actually three.</p>
@@ -549,6 +562,7 @@
         const sectionContent = document.getElementById('section-content');
         const sectionTitle = document.getElementById('section-title');
         const words = document.querySelectorAll('.sw');
+        const nums = document.querySelectorAll('.sn');
         const squares = document.querySelectorAll('.sq');
         const overlay = document.getElementById('modal-overlay');
         const modalTitle = document.getElementById('modal-title');
@@ -572,25 +586,19 @@
             const data = sections[id];
             if (!data) return;
 
-            if (animate) {
-                homeNav.style.opacity = '0';
-                homeNav.style.pointerEvents = 'none';
-                setTimeout(() => {
-                    words.forEach((el, i) => { el.textContent = data[i]; });
-                    sectionTitle.textContent = sectionTitles[id];
-                    sectionContent.style.opacity = '1';
-                    sectionContent.style.pointerEvents = 'auto';
-                    sectionTitle.style.opacity = '1';
-                }, 300);
-            } else {
-                homeNav.style.opacity = '0';
-                homeNav.style.pointerEvents = 'none';
+            const n = sectionNums[id] || [];
+            const applyContent = () => {
                 words.forEach((el, i) => { el.textContent = data[i]; });
+                nums.forEach((el, i) => { el.textContent = n[i] || ''; });
                 sectionTitle.textContent = sectionTitles[id];
                 sectionContent.style.opacity = '1';
                 sectionContent.style.pointerEvents = 'auto';
                 sectionTitle.style.opacity = '1';
-            }
+            };
+
+            homeNav.style.opacity = '0';
+            homeNav.style.pointerEvents = 'none';
+            if (animate) { setTimeout(applyContent, 300); } else { applyContent(); }
         }
 
         function showHome(animate) {
