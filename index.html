@@ -94,6 +94,7 @@
         #modal-overlay.visible { opacity: 1; }
 
         #modal-inner {
+            position: relative;
             background: #f2f0eb;
             width: 90vw;
             max-width: 640px;
@@ -103,6 +104,29 @@
             color: #4a4a4a;
             font-size: 14px;
             line-height: 1.6;
+        }
+
+        #modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: 1px solid transparent;
+            color: #808080;
+            font-family: inherit;
+            font-size: 18px;
+            line-height: 1;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        #modal-close:hover {
+            color: #4a4a4a;
+            border-color: #4a4a4a;
         }
 
         @supports (color: oklch(0 0 0)) {
@@ -286,6 +310,7 @@
 
     <div id="modal-overlay">
         <div id="modal-inner">
+            <button id="modal-close">&times;</button>
             <h1 id="modal-title"></h1>
             <div class="subtitle" id="modal-subtitle"></div>
             <div id="modal-body"></div>
@@ -715,6 +740,8 @@
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) history.back();
         });
+
+        document.getElementById('modal-close').addEventListener('click', () => history.back());
 
         window.addEventListener('popstate', () => navigate(true));
 
