@@ -147,17 +147,13 @@
 
         /* Funnel bars */
         .funnel { margin: 16px 0; }
-        .funnel-bar {
-            background: #4a4a4a;
-            color: #cdba74;
-            padding: 10px 14px;
-            margin: 3px 0;
-            font-size: 13px;
-            font-weight: 600;
-            transition: width 0.8s ease;
-        }
+        .funnel-item { margin: 10px 0; }
+        .funnel-label { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+        .funnel-label strong { color: #b58d69; }
+        .funnel-bar { height: 10px; background: #4a4a4a; }
         @supports (color: oklch(0 0 0)) {
-            .funnel-bar { background: oklch(0.29 0 0); color: oklch(0.75 0.1081 64.85); }
+            .funnel-bar { background: oklch(0.29 0 0); }
+            .funnel-label strong { color: oklch(0.6 0.1499 37.55); }
         }
 
         /* View toggle */
@@ -341,10 +337,10 @@
                         <li>Can we run this with max 5 hours weekly?</li>
                     </ol>
                     <div class="funnel">
-                        <div class="funnel-bar" style="width:100%">94 &mdash; Prospects identified</div>
-                        <div class="funnel-bar" style="width:45%">~40 &mdash; Passed the gate</div>
-                        <div class="funnel-bar" style="width:12%">~8 &mdash; Matched the filter</div>
-                        <div class="funnel-bar" style="width:3%">1 &mdash; Survived the kill questions</div>
+                        <div class="funnel-item"><div class="funnel-label"><strong>94</strong> &mdash; Prospects identified</div><div class="funnel-bar" style="width:100%"></div></div>
+                        <div class="funnel-item"><div class="funnel-label"><strong>~40</strong> &mdash; Passed the gate</div><div class="funnel-bar" style="width:43%"></div></div>
+                        <div class="funnel-item"><div class="funnel-label"><strong>~8</strong> &mdash; Matched the filter</div><div class="funnel-bar" style="width:9%"></div></div>
+                        <div class="funnel-item"><div class="funnel-label"><strong>1</strong> &mdash; Survived the kill questions</div><div class="funnel-bar" style="width:1.5%"></div></div>
                     </div>`
             },
             'the-call': {
